@@ -34,19 +34,23 @@
 #         continue
 #     print("Found an odd number", num)
 
-from enum import Enum
-class Color(Enum):
-    GREEN = 'green'
-    RED = 'red'
-    BLACK = 'Black'
-while Color:
-    color = Color(input("Enter your choice of 'red', 'green', 'Black': "))
-    match color:
-        case Color.RED:
-            print('I see the Red Color!')
-        case Color.GREEN:
-            print('I know grass is Green')
-        case Color.BLACK:
-            print('Black is good in fashion.. Right?')
+# from enum import Enum
+# class Color(Enum):
+#     GREEN = 'green'
+#     RED = 'red'
+#     BLACK = 'Black'
+# while Color:
+#     color = Color(input("Enter your choice of 'red', 'green', 'Black': "))
+#     match color:
+#         case Color.RED:
+#             print('I see the Red Color!')
+#         case Color.GREEN:
+#             print('I know grass is Green')
+#         case Color.BLACK:
+#             print('Black is good in fashion.. Right?')
+
+print('Hello world')
+a = list(range(2, 30))
+print(a)
 
 
