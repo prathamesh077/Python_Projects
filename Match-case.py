@@ -50,7 +50,7 @@
 #             print('Black is good in fashion.. Right?')
 
 print('Hello world')
-a = list(range(2, 30))
+a = list(range(2, 30)):
 print(a)
 
 
