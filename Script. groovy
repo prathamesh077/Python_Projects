@@ -1,0 +1,13 @@
+def Build(){
+	echo'Building the groovy script'
+}
+def test(){
+	echo "Testing phase of groovy script"
+}
+
+def Deploy(){
+	echo "Deploying the groovy script..."
+  echo "Deploying version ${params.VERSION}"
+}
+
+return this
