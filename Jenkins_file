@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+	environment{
+		NEW_VERSION = '3.64.2'
+	}
+	parameters {
+		
+		choice(name: 'VERSION', choices: ['1.1.5', '1.2.3', '5.4.9'], description: '')
+		booleanParam(name: 'executeTests', defaultValue: true, description: '')
+	}
+
+    stages {
+        stage("Checkout") {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/Python']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '39e50685-68eb-41f5-9575-dfb7ee803e99', url: 'https://github.com/prathamesh077/Python_Projects.git']]])
+				echo "This is the new ${NEW_VERSION}"
+				
+            }
+			post{
+				always {
+					script{
+					env.prepare = PostStatusUpdate(currentBuild.currentResult,env.green,env.grey,env.red,env.orange)
+					}
+				}
+			}
+        }
+		stage("Build"){
+			when{
+				expression {
+					params.executeTests
+				}
+			}
+			steps{
+				git branch: 'Python', credentialsId: '39e50685-68eb-41f5-9575-dfb7ee803e99', url: 'https://github.com/prathamesh077/Python_Projects.git'
+				bat 'Hello.py'
+			}
+			post{
+				always {
+					script{
+					env.prepare = PostStatusUpdate(currentBuild.currentResult,env.green,env.grey,env.red,env.orange)
+					}
+				}
+			}	
+		}
+		stage("Test"){
+			steps{
+				echo "This job is under testing...."
+				echo "deploying version ${params.VERSION}"
+				git branch: 'Python', credentialsId: '39e50685-68eb-41f5-9575-dfb7ee803e99', url: 'https://github.com/prathamesh077/Python_Projects.git'
+				bat 'Python Match-case.py'
+			}
+			post{
+				always {
+					script{
+					env.prepare = PostStatusUpdate(currentBuild.currentResult,env.green,env.grey,env.red,env.orange)
+					}
+				}
+			}
+		}
+	}
+	post{
+		always {
+			script {
+				logParser failBuildOnError: true, parsingRulesPath: 'C:\\.jenkins\\log_parse\\parse_rule_1.txt', useProjectRule: false
+				env.check = PostStatusUpdate(currentBuild.currentResult,env.green,env.grey,env.red,env.orange)
+			    SendEmail(env,"Pipeline-Demo "+env.VARIANT+" Workflow","TRIGGERED","PolySpace-Mails.template")
+			}
+		}
+	}
+}
+def PostStatusUpdate(def Result,def green,def grey,def red,def orange){
+	script{
+		if (Result=="SUCCESS"){
+			return green
+		}else if (Result == "ABORTED"){
+			return grey
+		}
+		else if (Result == "FAILURE"){
+			return red
+		}
+		else if (Result == "UNSTABLE"){
+			return orange
+		}
+	}
+}
+
+ def SendEmail(def env,def SubjectType,def Status,def Template,def AttachmentPattern="",def AttachLog=false){
+	env.VARIANT = env.VARIANT
+	emailext body: '''${SCRIPT, template="'''+Template+'''"}''',
+	attachmentsPattern: AttachmentPattern,
+	attachLog: AttachLog,
+	mimeType: 'text/html',
+	replyTo: 'Prathamesh.Mandge@microfuzzy.com',
+	subject: "${SubjectType} ${Status} »Build ${env.build_number}",
+	to: '${DEFAULT_EMAIL},${DeveloperEmails}'
+}
